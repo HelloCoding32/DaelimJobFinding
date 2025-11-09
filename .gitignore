@@ -1,0 +1,10 @@
+.env
+*.json
+firebase-key.json
+*.faiss
+*.npy
+venv/
+__pycache__/
+.idea/
+*.pyc
+.DS_Store
