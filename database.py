@@ -1,8 +1,7 @@
-import os
 import firebase_admin
 from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
-
+import os, json
 # -----------------------------------------------------------
 # 1️⃣ .env 환경 변수 로드
 # -----------------------------------------------------------
@@ -30,27 +29,26 @@ db = firestore.client()
 # -----------------------------------------------------------
 # 3️⃣ Firestore 공통 CRUD 함수
 # -----------------------------------------------------------
+FIREBASE_KEY_JSON = os.getenv("FIREBASE_KEY_JSON")
+
+if FIREBASE_KEY_JSON:
+    cred_dict = json.loads(FIREBASE_KEY_JSON)
+    cred = credentials.Certificate(cred_dict)
+else:
+    cred = credentials.Certificate("./firebase-key.json")  # 로컬 개발용 fallback
+
+firebase_admin.initialize_app(cred)
+db = firestore.client()
+
 def get_firestore():
-    """Firestore 인스턴스 반환"""
     return db
 
+def create_document(collection, doc_id, data):
+    db.collection(collection).document(doc_id).set(data)
 
-def create_document(collection_name: str, doc_id: str, data: dict):
-    """문서 생성 또는 덮어쓰기"""
-    db.collection(collection_name).document(doc_id).set(data)
-    print(f"✅ {collection_name}/{doc_id} 문서가 생성되었습니다.")
-
-
-def get_document(collection_name: str, doc_id: str):
-    """문서 읽기"""
-    doc_ref = db.collection(collection_name).document(doc_id)
-    doc = doc_ref.get()
-    if doc.exists:
-        print(f"📄 {collection_name}/{doc_id} 문서가 조회되었습니다.")
-        return doc.to_dict()
-    else:
-        print(f"⚠️ {collection_name}/{doc_id} 문서를 찾을 수 없습니다.")
-        return None
+def get_document(collection, doc_id):
+    doc = db.collection(collection).document(doc_id).get()
+    return doc.to_dict() if doc.exists else None
 
 
 def update_document(collection_name: str, doc_id: str, data: dict):
