@@ -1,52 +1,63 @@
+# /pro03/database.py
+# Firebase Firestore + 환경변수 기반 초기화 (Render / 로컬 완벽 호환)
+
 import firebase_admin
 from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
 import os, json
+
 # -----------------------------------------------------------
 # 1️⃣ .env 환경 변수 로드
 # -----------------------------------------------------------
 load_dotenv()
 
 FIREBASE_CREDENTIAL_PATH = os.getenv("FIREBASE_CREDENTIAL_PATH")
-
-if not FIREBASE_CREDENTIAL_PATH:
-    raise ValueError("❌ 환경변수 'FIREBASE_CREDENTIAL_PATH'가 설정되지 않았습니다. .env 파일을 확인하세요.")
-
-# -----------------------------------------------------------
-# 2️⃣ Firebase 초기화 (앱이 이미 초기화되어 있다면 재사용)
-# -----------------------------------------------------------
-# ✅ 수정 포인트: firebase_admin._apps 사용
-if not firebase_admin._apps:  
-    cred = credentials.Certificate(FIREBASE_CREDENTIAL_PATH)
-    firebase_admin.initialize_app(cred)
-    print("✅ Firebase 초기화 완료.")
-else:
-    print("ℹ️ Firebase 이미 초기화됨. 기존 인스턴스 재사용 중.")
-
-# Firestore 클라이언트 가져오기
-db = firestore.client()
-
-# -----------------------------------------------------------
-# 3️⃣ Firestore 공통 CRUD 함수
-# -----------------------------------------------------------
 FIREBASE_KEY_JSON = os.getenv("FIREBASE_KEY_JSON")
 
-if FIREBASE_KEY_JSON:
-    cred_dict = json.loads(FIREBASE_KEY_JSON)
-    cred = credentials.Certificate(cred_dict)
-else:
-    cred = credentials.Certificate("./firebase-key.json")  # 로컬 개발용 fallback
+if not FIREBASE_CREDENTIAL_PATH and not FIREBASE_KEY_JSON:
+    raise ValueError("❌ Firebase 인증정보가 없습니다. .env에 FIREBASE_CREDENTIAL_PATH 또는 FIREBASE_KEY_JSON을 설정하세요.")
 
-firebase_admin.initialize_app(cred)
+# -----------------------------------------------------------
+# 2️⃣ Firebase 초기화 (이미 초기화된 경우 재사용)
+# -----------------------------------------------------------
+try:
+    if not firebase_admin._apps:
+        # ✅ JSON 문자열로 전달된 경우 (Render 환경)
+        if FIREBASE_KEY_JSON:
+            cred_dict = json.loads(FIREBASE_KEY_JSON)
+            cred = credentials.Certificate(cred_dict)
+        else:
+            # ✅ 로컬 개발용 키 경로 기반
+            cred = credentials.Certificate(FIREBASE_CREDENTIAL_PATH)
+
+        firebase_admin.initialize_app(cred)
+        print("✅ Firebase 초기화 완료.")
+    else:
+        print("ℹ️ Firebase 이미 초기화됨. 기존 인스턴스 재사용 중.")
+except Exception as e:
+    print(f"⚠️ Firebase 초기화 중 오류 발생: {e}")
+
+# -----------------------------------------------------------
+# 3️⃣ Firestore 클라이언트
+# -----------------------------------------------------------
 db = firestore.client()
 
+# -----------------------------------------------------------
+# 4️⃣ Firestore CRUD 함수
+# -----------------------------------------------------------
 def get_firestore():
+    """Firestore 클라이언트 반환"""
     return db
 
+
 def create_document(collection, doc_id, data):
+    """문서 생성/덮어쓰기"""
     db.collection(collection).document(doc_id).set(data)
+    print(f"📝 Firestore 문서 생성: {collection}/{doc_id}")
+
 
 def get_document(collection, doc_id):
+    """문서 조회"""
     doc = db.collection(collection).document(doc_id).get()
     return doc.to_dict() if doc.exists else None
 
