@@ -37,8 +37,6 @@ python3 -m venv venv
 source venv/bin/activate
 2. 라이브러리 설치
 pip install -r requirements.txt
-3. 환경변수(.env) 설정
-OPENAI_API_KEY=your_openai_key
-CAREERNET_API_KEY=your_careernet_key
-FIREBASE_CREDENTIALS=firebase-admin-key.json
-REDIS_URL=redis://localhost:6379
+3. 실행
+uvicorn main:app --host 0.0.0.0 --port 10000
+
