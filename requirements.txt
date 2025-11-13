@@ -20,8 +20,8 @@ llama-cpp-python==0.3.16
 sentence-transformers==5.1.2
 transformers==4.57.1
 faiss-cpu==1.12.0
-torch==2.2.2
-numpy==1.26.4
+torch==2.9.0
+numpy==2.0.0
 pandas==2.2.3
 scikit-learn==1.4.2
 scipy==1.12.0
