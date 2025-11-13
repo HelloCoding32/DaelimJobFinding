@@ -6,6 +6,6 @@ firebase-key.json
 venv/
 __pycache__/
 .idea/
-.data/
+data/
 *.pyc
 .DS_Store
