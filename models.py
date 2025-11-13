@@ -1,6 +1,3 @@
-# /Users/seongjegeun/Downloads/pro03/models.py
-# Firebase Firestore 기반 모델 구조 정의
-
 from datetime import datetime
 
 # ------------------------------------------------------

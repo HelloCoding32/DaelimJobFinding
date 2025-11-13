@@ -4,20 +4,30 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>학생진로 상담 챗봇</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.js"></script>
     <style>
         /* ======================================================= */
-        /* (CSS는 원본과 100% 동일합니다) */
+        /* (CSS: 배경색 변수 연결 수정) */
         /* ======================================================= */
         :root {
-            /* Light Mode Variables */
-            --bg-color-body: #f5f7fa;
-            --bg-color-sidebar: #ffffff;
-            --bg-color-chat-container: #ffffff;
-            --bg-color-info-panel: #ffffff;
+            /* Light Mode Base/Fallback Values */
+            --base-body-color: #f5f7fa;
+            --base-text-color: #333333;
+
+            /* Custom Color Variables (User control) */
+            --custom-bg-color: var(--base-body-color);
+            --custom-text-color: var(--base-text-color);
+
+            /* Component Backgrounds: 모두 Custom BG를 따르도록 연결 수정 */
+            --bg-color-body: var(--custom-bg-color);
+            --bg-color-sidebar: var(--custom-bg-color);
+            --bg-color-chat-container: var(--custom-bg-color);
+            --bg-color-info-panel: var(--custom-bg-color);
+
+            /* Other Variables (Header, Chat Bubbles, Borders, etc.) */
             --bg-color-header-chat: #4a90e2;
             --bg-color-header-info: #5cb85c;
-            --text-color-primary: #333333;
+            --text-color-primary: var(--custom-text-color);
             --text-color-secondary: #555;
             --text-color-white: #ffffff;
             --border-color: #ddd;
@@ -34,33 +44,44 @@
             --competition-btn-hover-bg: #e67e22;
             --recommendation-item-bg: #f0f8ff;
             --recommendation-item-border: #ddd;
-            --info-sub-header-bg: #ffffff;
+            --info-sub-header-bg: var(--custom-bg-color);
             --info-toggle-btn-bg: #e6e6e6;
             --info-toggle-btn-color: #555;
             --info-toggle-btn-border: #ccc;
             --analysis-mode-btn-bg: #4a90e2;
             --analysis-mode-btn-border: #4a90e2;
             --analysis-mode-btn-color: white;
-            --keyword-card-bg: white;
+            --keyword-card-bg: var(--custom-bg-color);
             --graph-placeholder-bg: #f0f0f0;
             --graph-placeholder-border: #ccc;
             --edit-profile-btn-bg: #3498db;
             --edit-profile-btn-hover-bg: #2980b9;
-            --company-btn-bg: #27ae60; 
+            --company-btn-bg: #27ae60;
             --company-btn-hover-bg: #2ecc71;
+
+            /* 💡 [수정] 사이드바 헤더 텍스트 색상 (라이트 모드에서는 일반 텍스트 색상) */
+            --text-color-sidebar-header: var(--text-color-primary);
         }
 
-        /* Dark Mode Variables */
+        /* Dark Mode Variables (Alternative Preset) */
         body.dark-mode {
-            --bg-color-body: #1a1a2e;
-            --bg-color-sidebar: #16213e;
-            --bg-color-chat-container: #16213e;
-            --bg-color-info-panel: #16213e;
+            --base-body-color: #1a1a2e;
+            --base-text-color: #e0e0e0;
+
+            /* Apply Dark Mode Custom Colors */
+            --custom-bg-color: var(--base-body-color);
+            /* --custom-text-color: var(--base-text-color); 💡 [제거] 사용자 설정 텍스트 색상을 덮어쓰지 않음 */
+
+            /* Component backgrounds still derive from the custom color */
+            --bg-color-body: var(--custom-bg-color);
+            --bg-color-sidebar: var(--custom-bg-color);
+            --bg-color-chat-container: var(--custom-bg-color);
+            --bg-color-info-panel: var(--custom-bg-color);
+
+            /* Other Variables (Dark Mode specific) */
             --bg-color-header-chat: #0f3460;
             --bg-color-header-info: #216d21;
-            --text-color-primary: #e0e0e0;
             --text-color-secondary: #b0b0b0;
-            --text-color-white: #ffffff;
             --border-color: #3e4a60;
             --shadow-color: rgba(0,0,0,0.2);
             --chat-bubble-ai: #0f3460;
@@ -71,11 +92,9 @@
             --new-chat-btn-hover-bg: #f17088;
             --toggle-text-btn-bg: #e94560;
             --toggle-text-btn-hover-bg: #f17088;
-            --competition-btn-bg: #f39c12;
-            --competition-btn-hover-bg: #e67e22;
             --recommendation-item-bg: #2b3a5a;
             --recommendation-item-border: #3e4a60;
-            --info-sub-header-bg: #16213e;
+            --info-sub-header-bg: var(--custom-bg-color);
             --info-toggle-btn-bg: #3e4a60;
             --info-toggle-btn-color: #e0e0e0;
             --info-toggle-btn-border: #3e4a60;
@@ -85,50 +104,78 @@
             --keyword-card-bg: #2b3a5a;
             --graph-placeholder-bg: #3e4a60;
             --graph-placeholder-border: #5a6b8c;
-            --edit-profile-btn-bg: #3498db;
-            --edit-profile-btn-hover-bg: #2980b9;
-            --company-btn-bg: #27ae60;
-            --company-btn-hover-bg: #2ecc71;
+
+            /* 💡 [수정] 다크 모드에서의 사이드바 헤더 텍스트 색상 (여전히 custom을 따름) */
+            --text-color-sidebar-header: var(--text-color-primary);
         }
 
         body {
+            /* Use cascaded variable for main background/text */
             background-color: var(--bg-color-body);
             font-family: "Noto Sans KR", sans-serif;
             display: flex;
             height: 100vh;
             margin: 0;
-            color: var(--text-color-primary);
+            color: var(--custom-text-color); /* 🎨 모든 텍스트의 기본 색상을 --custom-text-color 변수로 설정 */
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
+        /* All elements using text-color-primary should be updated to use custom-text-color */
+        .sidebar-header, .chat-item.active, .info-content-title, .job-title, .text-content,
+        .modal-content h2, .modal-content label, .ai .message {
+             color: var(--custom-text-color);
+        }
+
+        /* Ensure input background matches main background */
+        .chat-input input {
+            background-color: var(--bg-color-body);
+        }
+
+        /* Main Container Backgrounds (now correctly linked to --custom-bg-color) */
+        .sidebar {
+            background-color: var(--bg-color-sidebar);
+            /* ... */
+        }
+        .chat-container {
+            background: var(--bg-color-chat-container);
+            /* ... */
+        }
+        .info-panel {
+            background-color: var(--bg-color-info-panel);
+            /* ... */
+        }
+        .chat-input {
+            background-color: var(--bg-color-chat-container);
+            /* ... */
+        }
+        /* ===== Sidebar (왼쪽 1) remains the same ===== */
         .main-content-wrapper {
             flex: 1;
             display: flex;
         }
 
-        /* ===== Sidebar (왼쪽 1) ===== */
         .sidebar {
             width: 240px;
-            background-color: var(--bg-color-sidebar);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             box-shadow: 2px 0 5px var(--shadow-color);
             transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        
+
         .sidebar-main {
             display: flex;
             flex-direction: column;
             flex: 1;
             min-height: 0;
         }
-        
+
+        /* 💡 [수정] 사이드바 헤더 색상 수정 */
         .sidebar-header {
             padding: 16px;
             font-weight: bold;
             font-size: 1.1rem;
-            color: var(--bg-color-header-chat);
+            color: var(--text-color-sidebar-header); /* 💡 수정: 이 변수는 다크/라이트 모드에서 분리됨 */
             border-bottom: 1px solid var(--border-color);
             transition: color 0.3s ease, border-color 0.3s ease;
         }
@@ -145,26 +192,69 @@
         .new-chat-btn:hover {
             background-color: var(--new-chat-btn-hover-bg);
         }
-        
+
         .chat-list {
             flex: 1;
             overflow-y: auto;
             padding: 10px;
         }
+
+        /* ======================================================= */
+        /* 💡 [CSS 수정] .chat-item 및 삭제 버튼 스타일 추가 */
+        /* ======================================================= */
         .chat-item {
-            padding: 10px;
+            padding: 0 10px; /* 좌우 패딩만 주고, 상하 패딩은 title로 제어 */
             border-radius: 8px;
             cursor: pointer;
             margin-bottom: 6px;
             transition: background-color 0.2s;
+            color: var(--text-color-primary);
+
+            /* 💡 [수정] Flexbox로 변경 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+        .chat-item-title {
+            flex: 1; /* 제목이 남은 공간을 모두 차지 */
+            white-space: nowrap; /* 제목이 길어도 줄바꿈 방지 */
+            overflow: hidden; /* 넘치는 텍스트 숨기기 */
+            text-overflow: ellipsis; /* ...으로 표시 */
+            padding: 10px 0; /* 클릭 영역 확보 */
+            margin-right: 5px; /* 버튼과의 간격 */
+        }
+        .chat-delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-color-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+            border-radius: 4px;
+
+            /* 💡 [추가] 평소에는 숨김 */
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s, background-color 0.2s;
+        }
+        /* 💡 [추가] chat-item에 마우스를 올렸을 때 삭제 버튼 표시 */
+        .chat-item:hover .chat-delete-btn {
+            visibility: visible;
+            opacity: 1;
+        }
+        /* 💡 [추가] 삭제 버튼 호버 시 스타일 */
+        .chat-delete-btn:hover {
+            background-color: var(--chat-item-hover);
+            color: #e74c3c; /* 삭제 아이콘 (빨간색) */
+        }
+        /* ======================================================= */
+
         .chat-item:hover {
             background-color: var(--chat-item-hover);
         }
         .chat-item.active {
             background-color: var(--chat-item-active);
             font-weight: bold;
-            color: var(--text-color-primary);
         }
         .sidebar-footer {
             display: flex;
@@ -201,15 +291,14 @@
             background-color: #fbeaea;
         }
 
-        /* ===== Chat container (중앙 1) ===== */
+        /* ===== Chat container (중앙 1) remains the same ===== */
         .chat-container {
             flex: 6;
             min-width: 0;
-            background: var(--bg-color-chat-container);
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             position: relative;
-            border-right: 1px solid var(--border-color);
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .chat-header {
@@ -291,7 +380,6 @@
         }
         .ai .message {
             background-color: var(--chat-bubble-ai);
-            color: var(--text-color-primary);
             border-bottom-left-radius: 2px;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
@@ -306,7 +394,6 @@
             display: flex;
             padding: 10px;
             border-top: 1px solid var(--border-color);
-            background-color: var(--bg-color-chat-container);
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .chat-input input {
@@ -315,7 +402,10 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             background-color: var(--bg-color-body);
-            color: var(--text-color-primary);
+
+            /* 💡 [수정] 텍스트 입력 칸의 글자색을 커스텀 텍스트 색상 변수를 따르도록 명시적으로 지정 */
+            color: var(--custom-text-color);
+
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .chat-input button {
@@ -338,10 +428,10 @@
             background: var(--bg-color-sidebar);
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            padding: 10px;
+            padding: 15px;
             box-shadow: 0 4px 8px var(--shadow-color);
-            width: 160px;
-            text-align: center;
+            width: 250px;
+            text-align: left;
             opacity: 0;
             transform: translateY(-10px);
             pointer-events: none;
@@ -355,35 +445,68 @@
         }
         .settings-panel label {
             color: var(--text-color-primary);
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
         .settings-panel small {
             color: var(--text-color-secondary);
         }
-        .settings-panel input[type="file"] {
+        .settings-panel input[type="text"],
+        .settings-panel input[type="color"] {
             width: 100%;
             margin-top: 6px;
+            padding: 5px;
             background-color: var(--bg-color-body);
             color: var(--text-color-primary);
             border: 1px solid var(--border-color);
             border-radius: 5px;
+            box-sizing: border-box;
         }
+
+        .settings-panel input[type="color"] {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .color-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        .color-preset-btn {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        .color-preset-btn:hover {
+            opacity: 0.8;
+        }
+
         .logout-setting-btn {
             background-color: #e74c3c;
             color: white;
             border: none;
-            margin-top: 8px;
+            margin-top: 15px;
             padding: 8px;
             border-radius: 6px;
             cursor: pointer;
+            width: 100%;
         }
         .logout-setting-btn:hover {
             background-color: #c0392b;
         }
 
-        /* ===== Info Panel (오른쪽 1) - 구조 및 전환 스타일 수정 ===== */
+        /* ===== Info Panel (오른쪽 1) remains the same ===== */
         .info-panel {
             flex: 4;
-            background-color: var(--bg-color-info-panel);
             display: flex;
             flex-direction: column;
             transition: background-color 0.3s ease;
@@ -459,7 +582,6 @@
         }
         .info-content-title {
             font-weight: bold;
-            color: var(--text-color-primary);
             border-left: 4px solid var(--bg-color-header-chat);
             padding-left: 8px;
             margin: 0;
@@ -489,19 +611,28 @@
             transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
             min-width: 100px;
         }
+
+        /* ======================================================= */
+        /* 💡 [CSS 수정] 키워드 카드 텍스트 색상 수정 (이전 수정분 유지) */
+        /* ======================================================= */
         .keyword-label {
             font-size: 0.8rem;
-            color: var(--text-color-secondary);
+            /* 💡 [수정] 전역 커스텀 텍스트 색상을 따르도록 변경 */
+            color: var(--custom-text-color);
+            opacity: 0.7; /* 약간 옅게 표시하여 라벨 역할 강조 */
             margin-bottom: 5px;
             font-weight: normal;
             transition: color 0.3s ease;
         }
         .keyword-value {
             font-weight: bold;
-            color: var(--bg-color-header-chat);
+            /* 💡 [수정] 전역 커스텀 텍스트 색상을 따르도록 변경 */
+            color: var(--custom-text-color);
             font-size: 1rem;
             transition: color 0.3s ease;
         }
+        /* ======================================================= */
+
         .graph-title {
             margin-top: 25px;
             margin-bottom: 15px;
@@ -559,7 +690,6 @@
         }
         .job-title {
             font-weight: bold;
-            color: var(--text-color-primary);
             font-size: 1rem;
             margin-bottom: 0;
             border-bottom: none;
@@ -586,7 +716,6 @@
         .text-content {
             font-size: 0.9rem;
             line-height: 1.4;
-            color: var(--text-color-primary);
             transition: opacity 0.3s, color 0.3s;
             overflow-y: auto;
             flex: 1;
@@ -639,7 +768,27 @@
         }
 
         /* ======================================================= */
-        /* 모달 (팝업) 스타일 추가 */
+        /* 💡 [CSS 수정] 학생 분석 요약 텍스트 색상 수정 (이전 수정분 유지) */
+        /* ======================================================= */
+        /* 사용자의 이미지에서 문제가 된 '학생 분석 요약' 안쪽 텍스트가
+           다크 모드에서 어둡게 남아있는 문제를 해결하기 위해,
+           해당 텍스트가 전역 커스텀 텍스트 색상을 따르도록 강제 지정합니다. */
+        .analysis-summary-keywords p {
+            color: var(--custom-text-color) !important;
+            background-color: var(--bg-color-chat-container);
+            font-size: 0.9em;
+            line-height: 1.5;
+            padding: 10px;
+            border: 1px dashed var(--border-color);
+            border-radius: 5px;
+            margin-top: 10px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        /* ======================================================= */
+
+        /* ======================================================= */
+        /* 모달 (팝업) 스타일 추가 (원본 유지) */
         /* ======================================================= */
         .modal {
             display: none;
@@ -669,7 +818,6 @@
         }
         .modal-content h2 {
             margin-top: 0;
-            color: var(--text-color-primary);
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             margin-bottom: 15px;
@@ -678,7 +826,6 @@
             display: block;
             margin-top: 10px;
             font-weight: bold;
-            color: var(--text-color-primary);
             font-size: 0.95rem;
         }
         .modal-content input[type="text"],
@@ -690,8 +837,11 @@
             border-radius: 5px;
             box-sizing: border-box;
             background-color: var(--bg-color-body);
-            color: var(--text-color-primary);
+
+            /* 💡 [수정] 모달 입력 칸의 글자색을 커스텀 텍스트 색상 변수를 따르도록 명시적으로 지정 */
+            color: var(--custom-text-color);
         }
+
         .modal-content input[disabled] {
             background-color: var(--chat-bubble-ai);
             opacity: 0.8;
@@ -743,21 +893,38 @@
             <button class="logout-btn" id="logoutBtn">🚪 로그아웃</button>
         </div>
     </div>
-    
+
     <div class="main-content-wrapper">
         <div class="chat-container">
             <div class="chat-header">
                 학생진로 상담 챗봇
                 <div class="chat-header-buttons">
-                    <button class="dark-mode-toggle-btn" id="darkModeToggle">
-                        <span class="icon">🌙</span> </button>
                     <button class="settings-btn" id="settingsBtn">⚙️</button>
                 </div>
             </div>
             <div class="settings-panel" id="settingsPanel">
-                <label><b>프로필 설정</b></label><br/>
-                <small>이미지 변경:</small>
-                <input type="file" id="profileInput" accept="image/*" />
+                <label for="bgColorInput"><b>화면 색상 설정</b></label>
+
+                <small>배경색 (예: #FFFFFF 또는 white):</small>
+                <div class="color-group">
+                    <input type="text" id="bgColorInput" placeholder="색상 코드 또는 이름" value="#f5f7fa" />
+                    <input type="color" id="bgColorPicker" value="#f5f7fa" title="색상 팔레트" />
+                </div>
+                <div style="margin-top: 5px;">
+                    <button class="color-preset-btn" data-type="bg" data-color="#FFFFFF" style="background-color: #FFFFFF; color: black; border-color: #ccc;">Light (White)</button>
+                    <button class="color-preset-btn" data-type="bg" data-color="#1a1a2e" style="background-color: #1a1a2e; color: white;">Dark (Deep Blue)</button>
+                </div>
+
+                <small>텍스트색 (예: #333333 또는 black):</small>
+                <div class="color-group">
+                    <input type="text" id="textColorInput" placeholder="색상 코드 또는 이름" value="#333333" />
+                    <input type="color" id="textColorPicker" value="#333333" title="색상 팔레트" />
+                </div>
+                <div style="margin-top: 5px; margin-bottom: 10px;">
+                    <button class="color-preset-btn" data-type="text" data-color="#333333" style="background-color: #ddd; color: #333333; border-color: #aaa;">Black</button>
+                    <button class="color-preset-btn" data-type="text" data-color="#FFFFFF" style="background-color: #111; color: white;">White</button>
+                </div>
+
                 <button class="logout-setting-btn" id="logoutSettingBtn">🚪 로그아웃</button>
             </div>
             <div class="chat-body" id="chat-body"></div>
@@ -783,7 +950,10 @@
                     <div class="info-content-title">📊 학생 분석 요약</div>
                     <div class="keyword-container" id="analysisKeywordContainer">
                         </div>
-                    <div class="info-content-title graph-title">📈 직업 일치율 분석 (가상)</div>
+                    <div class="info-content-title graph-title">
+
+📈 직업 일치율 분석
+                    </div>
                     <div class="graph-container">
                         <canvas id="jobMatchChart"></canvas>
                     </div>
@@ -791,7 +961,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="editProfileModal" class="modal">
         <div class="modal-content">
             <h2>회원 정보 수정</h2>
@@ -802,6 +972,7 @@
             <input type="password" id="modalNewPassword" placeholder="변경하려면 새 비밀번호를 입력하세요">
             <label for="modalUserName">이름</label>
             <input type="text" id="modalUserName" required>
+
             <div class="modal-buttons">
                 <button id="cancelUpdateBtn">취소</button>
                 <button id="updateProfileBtn">수정 완료</button>
@@ -811,14 +982,14 @@
 
     <script>
         // ===================================================================
-        // 💡 [버그 수정] JavaScript 로직 (코드 순서 변경 및 버그 수정)
+        // 💡 [수정 및 추가된] JavaScript 로직
         // ===================================================================
 
         // --- 1. DOM 요소 선택 ---
         const chatBody = document.getElementById("chat-body");
         const msgInput = document.getElementById("message");
         const sendBtn = document.getElementById("sendBtn");
-        const profileInput = document.getElementById("profileInput");
+        // const profileInput = document.getElementById("profileInput"); // 💡 [제거]
         const settingsBtn = document.getElementById("settingsBtn");
         const settingsPanel = document.getElementById("settingsPanel");
         const logoutBtn = document.getElementById("logoutBtn");
@@ -828,73 +999,172 @@
         const infoToggleBtn = document.getElementById("infoToggleBtn");
         const recommendationPanel = document.getElementById("recommendationPanel");
         const analysisPanel = document.getElementById("analysisPanel");
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        
+
         const sidebarTitle = document.getElementById("sidebarTitle");
         const infoHeaderTitle = document.getElementById("infoHeaderTitle");
         const infoPanelTitle = document.getElementById("infoPanelTitle");
         const analysisKeywordContainer = document.getElementById("analysisKeywordContainer");
-        
+
         const editProfileBtn = document.getElementById("editProfileBtn");
         const editProfileModal = document.getElementById("editProfileModal");
         const modalUserId = document.getElementById("modalUserId");
         const modalNewPassword = document.getElementById("modalNewPassword");
         const modalUserName = document.getElementById("modalUserName");
+        // const modalProfileInput = document.getElementById("modalProfileInput"); // 💡 [삭제] 모달의 프로필 입력 필드
         const updateProfileBtn = document.getElementById("updateProfileBtn");
         const cancelUpdateBtn = document.getElementById("cancelUpdateBtn");
         const updateStatusMessage = document.getElementById("updateStatusMessage");
 
+        // --- 색상 설정 관련 DOM 추가 ---
+        const bgColorInput = document.getElementById('bgColorInput');
+        const bgColorPicker = document.getElementById('bgColorPicker');
+        const textColorInput = document.getElementById('textColorInput');
+        const textColorPicker = document.getElementById('textColorPicker');
+        const colorPresetBtns = document.querySelectorAll('.color-preset-btn');
+
+
         // --- 2. 전역 변수 관리 ---
         let userName = "학생";
         let userId = null;
-        let userProfileSrc = "/static/user-profile.png";
+        // 💡 [수정] 프로필 이미지 소스를 상수로 고정 (기능 삭제)
+        const userProfileSrc = "/static/user-profile.png";
         let conversationHistory = [];
         let chats = [];
         let currentChatIndex = -1;
         let currentConversationId = null;
         let isRecommendationMode = true;
-        
+
         let jobMatchChart = null;
 
-        // --- 3. 💡 [수정] 헬퍼 함수 정의 (window.onload 보다 위로 이동) ---
+        // --- 3. 헬퍼 함수 정의 및 수정 ---
 
+        // 💡 [삭제] fileToBase64 함수 제거
+
+        // 💡 [수정] 프로필 이미지 경로 업데이트 로직 제거
         function updateUserUI(name) {
             userName = name;
+            // userProfileSrc = profileSrc; // 💡 [삭제] 프로필 이미지 경로 업데이트 로직 제거
             if (sidebarTitle) sidebarTitle.textContent = `💬 ${name} 님의 상담 기록`;
             if (infoHeaderTitle) infoHeaderTitle.textContent = `🔍 ${name} 님의 맞춤형 진로 정보`;
             if (infoPanelTitle) infoPanelTitle.innerHTML = `
-                <span style="color: var(--text-color-secondary);">📊</span>
+                <span style="color: #666;">📊</span>
                 <span style="display:inline-block; margin-right:5px; font-weight: bold;">${name} 님의</span> AI 추천 직업
             `;
             document.querySelectorAll('.name-label.user').forEach(el => el.textContent = name);
+
+            // 💡 [수정] 프로필 이미지 소스 고정
+            document.querySelectorAll('.profile.user-img').forEach(img => {
+                img.src = userProfileSrc;
+            });
+
+            // 💡 [삭제] localStorage에 이미지 경로 저장 로직 제거
         }
 
         function addEventListeners() {
             infoToggleBtn?.addEventListener('click', toggleInfoPanel);
-            darkModeToggle?.addEventListener('click', toggleDarkMode);
             settingsBtn?.addEventListener('click', () => settingsPanel.classList.toggle("show"));
-            profileInput?.addEventListener("change", handleProfileImageChange);
-            
+            // profileInput?.addEventListener("change", handleProfileImageChange); // 💡 [제거]
+
             editProfileBtn?.addEventListener('click', openEditProfileModal);
             cancelUpdateBtn?.addEventListener('click', closeEditProfileModal);
             updateProfileBtn?.addEventListener('click', handleUpdateProfile);
             window.addEventListener('click', (event) => {
+                // 설정 패널 외부 클릭 시 패널 닫기
+                if (!settingsPanel.contains(event.target) && event.target !== settingsBtn) {
+                     settingsPanel.classList.remove("show");
+                }
                 if (event.target === editProfileModal) closeEditProfileModal();
             });
 
             logoutBtn?.addEventListener('click', logout);
             logoutSettingBtn?.addEventListener('click', logout);
-            
+
             newChatBtn?.addEventListener("click", newChat);
 
             msgInput?.addEventListener("keypress", (e) => {
                 if (e.key === "Enter") sendMessage();
             });
-            
+
             sendBtn?.addEventListener("click", sendMessage);
+
+            // --- 색상 설정 이벤트 리스너 추가 ---
+            bgColorInput?.addEventListener('input', () => applyCustomColors(bgColorInput.value, 'bg'));
+            bgColorPicker?.addEventListener('input', () => applyCustomColors(bgColorPicker.value, 'bg'));
+
+            textColorInput?.addEventListener('input', () => applyCustomColors(textColorInput.value, 'text'));
+            textColorPicker?.addEventListener('input', () => applyCustomColors(textColorPicker.value, 'text'));
+
+            colorPresetBtns.forEach(btn => {
+                btn.addEventListener('click', handleColorPreset);
+            });
+
         }
 
-        // 💡 [버그 수정] "무한 대답지옥" 버그 수정
+        // 💡 [수정] 커스텀 색상 적용 함수 (이전 수정 사항 유지)
+        function applyCustomColors(color, type) {
+            const root = document.documentElement;
+
+            if (type === 'bg') {
+                root.style.setProperty('--custom-bg-color', color);
+                localStorage.setItem('custom_bg_color', color);
+                if (bgColorInput.value !== color) bgColorInput.value = color;
+                if (bgColorPicker.value !== color) bgColorPicker.value = color;
+
+            } else if (type === 'text') {
+                root.style.setProperty('--custom-text-color', color);
+                localStorage.setItem('custom_text_color', color);
+                if (textColorInput.value !== color) textColorInput.value = color;
+                if (textColorPicker.value !== color) textColorPicker.value = color;
+
+                // 💡 [추가] primary 텍스트 색상도 custom-text-color를 따르도록 설정
+                root.style.setProperty('--text-color-primary', color);
+            }
+
+            if (currentChatIndex >= 0) {
+                const loadedRecs = chats[currentChatIndex].recommendations || [];
+                const loadedKeywords = chats[currentChatIndex].keywords || [];
+                updateJobMatchGraph(loadedKeywords, loadedRecs);
+            }
+        }
+
+        // ===================================================================
+        // 💡 [JS 수정] 색상 프리셋 핸들러: 텍스트 색상 강제 초기화 방지 및 가시성 확보 로직 추가 (이전 수정분 유지)
+        // ===================================================================
+        function handleColorPreset(event) {
+            const btn = event.currentTarget;
+            const type = btn.getAttribute('data-type');
+            const color = btn.getAttribute('data-color');
+
+            const currentTextColor = localStorage.getItem('custom_text_color');
+
+            // 텍스트 색상 코드를 소문자로 통일
+            const isTextDark = (currentTextColor && (currentTextColor.toLowerCase() === '#333333' || currentTextColor.toLowerCase() === 'black'));
+            const isTextLight = (currentTextColor && (currentTextColor.toLowerCase() === '#ffffff' || currentTextColor.toLowerCase() === 'white' || currentTextColor.toLowerCase() === '#e0e0e0'));
+
+            if (type === 'bg') {
+                const isDarkMode = (color === '#1a1a2e');
+
+                if (isDarkMode) {
+                    document.body.classList.add('dark-mode');
+                    // 💡 다크 모드 진입 시, 텍스트 색상이 너무 어두우면 (가시성이 낮으면) 밝게 변경하여 가시성 확보
+                    if (!currentTextColor || isTextDark) {
+                         applyCustomColors('#e0e0e0', 'text'); // 흰색 계열로 변경
+                    }
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    // 💡 라이트 모드 진입 시, 텍스트 색상이 너무 밝으면 (가시성이 낮으면) 어둡게 변경하여 가시성 확보
+                    if (!currentTextColor || isTextLight) {
+                         applyCustomColors('#333333', 'text'); // 검은색 계열로 변경
+                    }
+                }
+                applyCustomColors(color, 'bg');
+            } else if (type === 'text') {
+                // 텍스트 색상 프리셋은 무조건 적용
+                applyCustomColors(color, 'text');
+            }
+        }
+
+        // 💡 [원본 유지] sendMessage 함수
         async function sendMessage() {
             const msg = msgInput.value.trim();
             if (msg === "") return;
@@ -932,23 +1202,20 @@
                 updateAnalysisPanel(data.keywords, data.recommendations);
                 updateInfoPanel(data);
 
-                // ✅ 3️⃣ 키워드 그래프 업데이트
-                if (data.keywords && data.keywords.length > 0) {
-                    updateKeywordChart(data.keywords);
-                }
-
-                // ✅ 4️⃣ 히스토리 저장
+                // ✅ 3️⃣ 히스토리 저장
                 conversationHistory = data.new_history || [];
                 if (currentChatIndex >= 0) {
                     const currentChat = chats[currentChatIndex];
                     currentChat.history = conversationHistory;
-                    currentChat.title =
-                        currentChat.title === "새 대화" ? msg.slice(0, 15) : currentChat.title;
+                    // 💡 [수정] "새 대화"일 때만 제목 업데이트
+                    if (currentChat.title === "새 대화") {
+                        currentChat.title = msg.length > 15 ? msg.slice(0, 15) + "..." : msg;
+                    }
                     currentChat.recommendations = data.recommendations;
                     currentChat.keywords = data.keywords;
                     saveChats();
                 }
-                loadChatList();
+                loadChatList(); // 💡 목록을 새로고침하여 제목 변경 반영
 
             } catch (error) {
                 console.error("❌ 챗봇 통신 오류:", error);
@@ -960,8 +1227,9 @@
             }
         }
 
+        // 💡 [원본 유지] updateAnalysisPanel, updateJobMatchGraph 함수
         function updateAnalysisPanel(keywords, recommendations) {
-            
+
             if (analysisKeywordContainer) {
                 if (!keywords || keywords.length === 0) {
                     analysisKeywordContainer.innerHTML = `
@@ -978,7 +1246,7 @@
                     `).join('');
                 }
             }
-            
+
             if (typeof Chart === 'undefined') {
                 console.warn("Chart.js가 로드되지 않았습니다. 그래프를 그릴 수 없습니다.");
                 const canvas = document.getElementById('jobMatchChart');
@@ -991,10 +1259,10 @@
                 }
                 return;
             }
-            
+
             updateJobMatchGraph(keywords, recommendations);
         }
-        
+
         function updateJobMatchGraph(keywords, recommendations) {
             if (!window.Chart || typeof Chart !== "function") {
                 console.warn("Chart.js가 아직 로드되지 않았습니다.");
@@ -1002,15 +1270,15 @@
             }
             const ctx = document.getElementById('jobMatchChart');
             if (!ctx) return;
-            
-            const validRecs = (recommendations || []).filter(rec => 
+
+            const validRecs = (recommendations || []).filter(rec =>
                 rec.job && !rec.job.startsWith("추천 직업")
             );
             const validKeywords = (keywords || []).map(k => k.value).filter(Boolean);
 
             let labels = [];
             let scores = [];
-            
+
             if (validRecs.length > 0 && validKeywords.length > 0) {
                 labels = validRecs.map(rec => rec.job);
                 scores = validRecs.map(rec => {
@@ -1027,7 +1295,7 @@
                     let finalScore = (1 + score) * (100 / (validKeywords.length + 2));
                     return Math.min(finalScore, 100);
                 });
-                
+
             } else {
                 labels = ["일치율 데이터 없음"];
                 scores = [0];
@@ -1037,40 +1305,48 @@
                 jobMatchChart.destroy();
             }
 
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            const tickColor = isDarkMode ? '#e0e0e0' : '#555';
+            const root = document.documentElement;
+            const tickColor = getComputedStyle(root).getPropertyValue('--custom-text-color') || '#333333';
+
 
             jobMatchChart = new Chart(ctx, {
+                // 💡 [수정] 막대 그래프의 방향을 'y'에서 'x'로 변경 (수직 막대)
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: '학생-직업 일치율 (가상)',
+                        label: '학생-직업 일치율',
                         data: scores,
                         backgroundColor: [
                             'rgba(74, 144, 226, 0.7)',
                             'rgba(92, 184, 92, 0.7)',
-                            'rgba(243, 156, 18, 0.7)'
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(226, 74, 144, 0.7)', /* 추가 색상 */
+                            'rgba(144, 226, 74, 0.7)'  /* 추가 색상 */
                         ],
                         borderColor: [
                             'rgba(74, 144, 226, 1)',
                             'rgba(92, 184, 92, 1)',
-                            'rgba(243, 156, 18, 1)'
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(226, 74, 144, 1)', /* 추가 색상 */
+                            'rgba(144, 226, 74, 1)'  /* 추가 색상 */
                         ],
                         borderWidth: 1
                     }]
                 },
                 options: {
-                    indexAxis: 'y',
+                    // 💡 [수정] 막대 그래프의 방향을 'y'에서 'x'로 변경 (수직 막대)
+                    indexAxis: 'x',
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
                         x: {
                             beginAtZero: true,
-                            max: 100,
                             ticks: { color: tickColor }
                         },
                         y: {
+                            beginAtZero: true,
+                            max: 100, /* Image 1의 y축 최대값 10과 유사하게 100으로 설정 */
                             ticks: { color: tickColor }
                         }
                     },
@@ -1092,58 +1368,69 @@
         }
 
         function updateInfoPanel(data) {
-            if (infoPanelTitle) {
-                infoPanelTitle.innerHTML = `
-                    <span style="color: var(--text-color-secondary);">📊</span>
-                    <span style="display:inline-block; margin-right:5px; font-weight: bold;">${userName} 님의</span> AI 추천 직업
-                `;
-            }
+    if (infoPanelTitle) {
+        infoPanelTitle.innerHTML = `
+            <span style="color: var(--text-color-secondary);">📊</span>
+            <span style="display:inline-block; margin-right:5px; font-weight: bold;">${userName} 님의</span> AI 추천 직업
+        `;
+    }
 
-            const recListContainer = recommendationPanel.querySelector('.recommendation-list');
-            if (!recListContainer) return;
+    const recListContainer = recommendationPanel.querySelector('.recommendation-list');
+    if (!recListContainer) return;
 
-            const recs = (data && data.recommendations) ? data.recommendations : [];
-            
-            let recListHtml = "";
-            let drawnCards = 0;
+    const recs = (data && data.recommendations) ? data.recommendations : [];
 
-            if (recs.length > 0) {
-                recs.forEach((rec, index) => {
-                    recListHtml += `
-                    <div class="recommendation-item" data-id="${index + 1}">
-                        <div class="job-header">
-                            <div class="job-title">${rec.job || `추천 직업 ${index + 1}`}</div>
-                        </div>
-                        <div class="button-container">
-                            <button class="toggle-text-btn company-btn" data-target="company" data-state="reason">회사 보기</button>
-                            <button class="toggle-text-btn competition-btn" data-target="competition" data-state="reason">경쟁률 보기</button>
-                            <button class="toggle-text-btn outlook-btn" data-target="outlook" data-state="reason">전망 보기</button>
-                        </div>
-                        <div class="text-area">
-                            <div class="reason-label">추천 사유</div>
-                            <div class="text-content reason-text current">${rec.reason || '추천 사유가 없습니다.'}</div>
-                            <div class="text-content company-text hidden">${rec.company || '관련 회사 정보가 없습니다.'}</div>
-                            <div class="text-content outlook-text hidden">${rec.outlook || '직업 전망 정보가 없습니다.'}</div>
-                            <div class="text-content competition-text hidden">${rec.competition || '경쟁률 정보가 없습니다.'}</div>
-                        </div>
+    let recListHtml = "";
+    let drawnCards = 0;
+
+    if (recs.length > 0) {
+        recs.forEach((rec, index) => {
+            recListHtml += `
+                <div class="recommendation-item" data-id="${index + 1}">
+                    <div class="job-header">
+                        <div class="job-title">${rec.job || `추천 직업 ${index + 1}`}</div>
                     </div>
-                    `;
-                    drawnCards++;
-                });
-            }
+                    <div class="button-container">
+                        <button class="toggle-text-btn company-btn" data-target="company" data-state="reason">회사 보기</button>
+                        <button class="toggle-text-btn competition-btn" data-target="competition" data-state="reason">경쟁률 보기</button>
+                        <button class="toggle-text-btn outlook-btn" data-target="outlook" data-state="reason">전망 보기</button>
+                    </div>
+                    <div class="text-area">
+                        <div class="reason-label">추천 사유</div>
+                        <div class="text-content reason-text current">${rec.reason || '추천 사유가 없습니다.'}</div>
+                        <div class="text-content company-text hidden">${rec.company || '관련 회사 정보가 없습니다.'}</div>
+                        <div class="text-content outlook-text hidden">${rec.outlook || '직업 전망 정보가 없습니다.'}</div>
+                        <div class="text-content competition-text hidden">${rec.competition || '경쟁률 정보가 없습니다.'}</div>
+                    </div>
+                </div>
+            `;
+            drawnCards++;
+        });
+    }
 
-           if (drawnCards < 3) {
-                for (let i = drawnCards; i < 3; i++) {
-                    recListHtml += ` ... `;
-                }
-            }
-            
-            recListContainer.innerHTML = recListHtml;
-            
-            recListContainer.querySelectorAll('.toggle-text-btn').forEach(button => {
-                button.addEventListener('click', (e) => toggleTextContent(e.currentTarget));
-            });
+    // 💡 수정된 부분
+    if (drawnCards < 3) {
+        for (let i = drawnCards; i < 3; i++) {
+            recListHtml += `
+                <div class="recommendation-item" data-id="${i + 1}">
+                    <div class="job-header">
+                        <div class="job-title">추천 직업 ${i + 1}</div>
+                    </div>
+                    <div class="text-area">
+                        <div class="reason-label">추천 사유</div>
+                        <div class="text-content reason-text current">대화를 통해 추천됩니다.</div>
+                    </div>
+                </div>
+            `;
         }
+    }
+
+    recListContainer.innerHTML = recListHtml;
+
+    recListContainer.querySelectorAll('.toggle-text-btn').forEach(button => {
+        button.addEventListener('click', (e) => toggleTextContent(e.currentTarget));
+    });
+}
 
         function toggleTextContent(button) {
             const item = button.closest('.recommendation-item');
@@ -1198,6 +1485,7 @@
                 analysisPanel.classList.add('visible');
                 infoToggleBtn.textContent = "⬅️ 추천 직업 보기";
                 infoToggleBtn.classList.add('analysis-mode-btn');
+                // 💡 [수정] (가상) 텍스트 제거
                 infoPanelTitle.innerHTML = `<span style="color: var(--bg-color-header-chat);">📊</span> ${userName} 님 분석 상세`;
             } else {
                 analysisPanel.classList.remove('visible');
@@ -1214,48 +1502,12 @@
             isRecommendationMode = !isRecommendationMode;
         }
 
-        function toggleDarkMode() {
-            const isDarkMode = document.body.classList.toggle('dark-mode');
-            if (isDarkMode) {
-                localStorage.setItem('theme', 'dark');
-                darkModeToggle.querySelector('.icon').textContent = '☀️';
-            } else {
-                localStorage.setItem('theme', 'light');
-                darkModeToggle.querySelector('.icon').textContent = '🌙';
-            }
-            
-            try {
-                if (currentChatIndex < 0 || !chats[currentChatIndex]) return;
-                updateJobMatchGraph(
-                    chats[currentChatIndex]?.keywords || [], 
-                    chats[currentChatIndex]?.recommendations || []
-                );
-            } catch (e) {
-                console.error("다크모드 그래프 업데이트 오류:", e);
-            }
-        }
-
-    
-
-        function handleProfileImageChange(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    userProfileSrc = e.target.result;
-                    document.querySelectorAll('.profile.user-img').forEach(img => {
-                        img.src = userProfileSrc;
-                    });
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // --- 5. 회원정보/대화 세션 관리 함수 ---
+        // --- 5. 회원정보/대화 세션 관리 함수 (원본 유지) ---
         function openEditProfileModal() {
             modalUserId.value = userId;
             modalUserName.value = userName;
             modalNewPassword.value = '';
+            // modalProfileInput.value = ''; // 💡 [삭제] 파일 입력 초기화 로직 제거
             updateStatusMessage.textContent = '';
             updateStatusMessage.style.color = 'green';
             editProfileModal.style.display = 'block';
@@ -1268,6 +1520,7 @@
         async function handleUpdateProfile() {
             const newPassword = modalNewPassword.value;
             const newName = modalUserName.value.trim();
+            // const profileFile = modalProfileInput.files[0]; // 💡 [삭제] 파일 가져오기 로직 제거
 
             if (!newName) {
                 updateStatusMessage.textContent = '이름은 필수로 입력해야 합니다.';
@@ -1275,8 +1528,15 @@
                 return;
             }
 
+            updateStatusMessage.textContent = '정보 수정 중...';
+            updateStatusMessage.style.color = 'blue';
+
+            // 💡 [삭제] 파일 Base64 변환 로직 제거
+            // let base64Image = null;
+            // try { ... }
+
             try {
-                const response = await fetch("/api/update_profile", { 
+                const response = await fetch("/api/update_profile", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -1284,7 +1544,8 @@
                     body: JSON.stringify({
                         user_id: userId,
                         new_password: newPassword || null,
-                        new_name: newName
+                        new_name: newName,
+                        // new_profile_image: base64Image // 💡 [삭제] Base64 이미지 데이터 전송 제거
                     })
                 });
 
@@ -1292,15 +1553,19 @@
                     const errorData = await response.json();
                     throw new Error(errorData.message || '정보 수정 실패');
                 }
-                
+
+                // const responseData = await response.json(); 💡 [삭제] 서버 응답 처리 (profile_src 제거)
+
                 localStorage.setItem("user_name", newName);
+
+                // 💡 [수정] 업데이트된 이름으로 UI 업데이트 (프로필 경로 인자 제거)
                 updateUserUI(newName);
-                
+
                 updateStatusMessage.textContent = '회원 정보가 성공적으로 수정되었습니다!';
                 updateStatusMessage.style.color = 'green';
-                
+
                 setTimeout(closeEditProfileModal, 1500);
-                
+
             } catch (error) {
                 console.error("회원 정보 수정 오류:", error);
                 updateStatusMessage.textContent = error.message;
@@ -1308,28 +1573,54 @@
             }
         }
 
+        // ===================================================================
+        // 💡 [JS 수정] loadChatList 함수 (이전 수정분 유지)
+        // ===================================================================
+        // 기존: div.textContent = chat.title
+        // 수정: <span>(제목)</span><button>(삭제)</button> 구조로 변경
+        //       제목과 삭제 버튼에 별도 이벤트 리스너 연결
+
         function loadChatList() {
             if (!chatList) return;
             chatList.innerHTML = "";
-            chats.forEach((chat, index) => {
+
+            // 💡 [수정] 최신 대화가 위로 오도록 역순으로 순회 (선택 사항)
+            // chats.forEach((chat, index) => {
+            [...chats].reverse().forEach((chat, reversedIndex) => {
+
+                // 💡 [수정] 원래 배열의 인덱스를 계산
+                const index = chats.length - 1 - reversedIndex;
+                const chatData = chats[index];
+
                 const div = document.createElement("div");
                 div.classList.add("chat-item");
                 if (index === currentChatIndex) div.classList.add("active");
-                div.textContent = chat.title;
 
-                div.addEventListener("click", () => {
+                // 1. 제목 Span 생성
+                const titleSpan = document.createElement("span");
+                titleSpan.classList.add("chat-item-title");
+                titleSpan.textContent = chatData.title;
+
+                // 2. 삭제 Button 생성
+                const deleteBtn = document.createElement("button");
+                deleteBtn.classList.add("chat-delete-btn");
+                deleteBtn.innerHTML = "🗑️"; // 휴지통 아이콘
+                deleteBtn.setAttribute("title", "대화 삭제");
+
+                // 3. 제목(titleSpan) 클릭 이벤트 (기존 div.addEventListener)
+                titleSpan.addEventListener("click", () => {
                     currentChatIndex = index;
-                    conversationHistory = chats[index].history;
-                    currentConversationId = chats[index].conversationId;
-                    
-                    const loadedRecs = chats[currentChatIndex].recommendations || [];
-                    const loadedKeywords = chats[currentChatIndex].keywords || [];
-                    
-                    loadChatList();
-                    renderChat(conversationHistory);
-                    
+                    conversationHistory = chatData.history;
+                    currentConversationId = chatData.conversationId;
+
+                    const loadedRecs = chatData.recommendations || [];
+                    const loadedKeywords = chatData.keywords || [];
+
+                    loadChatList(); // 목록 새로고침 (활성 아이템 변경)
+                    renderChat(conversationHistory); // 채팅창 내용 로드
+
                     updateInfoPanel({ recommendations: loadedRecs });
-                    
+
                     try {
                         updateAnalysisPanel(loadedKeywords, loadedRecs);
                     } catch (e) {
@@ -1337,17 +1628,80 @@
                     }
                 });
 
-                div.addEventListener("dblclick", () => {
-                    const newTitle = prompt("새로운 대화 제목을 입력하세요:", chat.title);
+                // 4. 제목(titleSpan) 더블 클릭 이벤트 (이름 바꾸기)
+                titleSpan.addEventListener("dblclick", () => {
+                    const newTitle = prompt("새로운 대화 제목을 입력하세요:", chatData.title);
                     if (newTitle && newTitle.trim() !== "") {
                         chats[index].title = newTitle.trim();
                         saveChats();
                         loadChatList();
                     }
                 });
+
+                // 5. 삭제(deleteBtn) 클릭 이벤트
+                deleteBtn.addEventListener("click", (e) => {
+                    e.stopPropagation(); // 💡 중요: titleSpan의 클릭 이벤트가 실행되지 않도록 함
+
+                    // 사용자에게 확인 받기
+                    if (confirm("'" + chatData.title + "' 대화를 정말 삭제하시겠습니까?")) {
+                        deleteChat(index);
+                    }
+                });
+
+                // 6. div에 자식 요소들 추가
+                div.appendChild(titleSpan);
+                div.appendChild(deleteBtn);
                 chatList.appendChild(div);
             });
         }
+
+        // ===================================================================
+        // 💡 [JS 신규] deleteChat 함수 (이전 수정분 유지)
+        // ===================================================================
+        function deleteChat(index) {
+            try {
+                // 1. 배열에서 해당 인덱스 제거
+                chats.splice(index, 1);
+
+                // 2. LocalStorage에 저장
+                saveChats();
+
+                // 3. UI 갱신
+                if (index === currentChatIndex) {
+                    // 💡 현재 활성화된 채팅을 삭제한 경우
+                    if (chats.length > 0) {
+                        // 💡 다른 채팅이 남아있다면, 이전 채팅 또는 0번 채팅을 활성화
+                        currentChatIndex = Math.max(0, index - 1);
+
+                        const newActiveChat = chats[currentChatIndex];
+                        conversationHistory = newActiveChat.history;
+                        currentConversationId = newActiveChat.conversationId;
+
+                        renderChat(conversationHistory);
+                        updateInfoPanel({ recommendations: newActiveChat.recommendations || [] });
+                        updateAnalysisPanel(newActiveChat.keywords || [], newActiveChat.recommendations || []);
+
+                    } else {
+                        // 💡 모든 채팅이 삭제된 경우, 새 채팅 시작
+                        newChat();
+                        return; // newChat()가 loadChatList()를 호출하므로 여기서 종료
+                    }
+
+                } else if (index < currentChatIndex) {
+                    // 💡 현재 활성화된 채팅보다 '이전' 채팅을 삭제한 경우
+                    // 활성 인덱스를 하나 줄여야 함
+                    currentChatIndex--;
+                }
+
+                // 4. 채팅 목록 새로고침
+                loadChatList();
+
+            } catch (error) {
+                console.error("대화 삭제 중 오류:", error);
+                alert("대화를 삭제하는 중 오류가 발생했습니다.");
+            }
+        }
+
 
         function renderChat(history) {
             if (!chatBody) return;
@@ -1373,19 +1727,22 @@
             currentConversationId = 'conv_' + Date.now().toString() + '_' + userId;
             conversationHistory = [];
 
-            const newChatEntry = { 
-                title: "새 대화", 
-                history: [], 
+            const newChatEntry = {
+                title: "새 대화",
+                history: [],
                 conversationId: currentConversationId,
                 recommendations: [],
                 keywords: []
             };
+
+            // 💡 [수정] 새 대화를 배열의 맨 앞에 추가 (최신순)
             chats.push(newChatEntry);
-            currentChatIndex = chats.length - 1;
+            currentChatIndex = chats.length - 1; // 💡 새 대화가 마지막 인덱스가 됨
+
             saveChats();
-            loadChatList();
-            renderChat([]);
-            
+            loadChatList(); // 💡 목록 새로고침 (새 대화가 맨 위에 표시됨)
+            renderChat([]); // 💡 채팅창 비우기
+
             updateInfoPanel({ recommendations: [] });
             try {
                 updateAnalysisPanel([], []);
@@ -1399,6 +1756,11 @@
             localStorage.removeItem("user_id");
             localStorage.removeItem("user_name");
             localStorage.removeItem(`chats_${userId}`);
+            // 💡 [삭제] 프로필 이미지 소스도 초기화 로직 제거
+            // localStorage.removeItem("user_profile_src");
+            // 💡 [수정] 커스텀 색상 설정도 로그아웃 시 초기화 (텍스트 키 이름 수정)
+            localStorage.removeItem("custom_bg_color");
+            localStorage.removeItem("custom_text_color");
             window.location.href = "/login.html";
         }
 
@@ -1408,7 +1770,7 @@
             }
         }
 
-        // --- 6. 채팅 메시지 UI 추가 함수 ---
+        // --- 6. 채팅 메시지 UI 추가 함수 (원본 유지) ---
         function addUserMessage(text, scroll = true) {
             const messageRow = document.createElement("div");
             messageRow.classList.add("message-row", "user");
@@ -1438,22 +1800,43 @@
         }
 
 
-        // --- 7. 💡 [버그 수정] window.onload를 모든 함수 정의 *뒤*로 이동 ---
+        // --- 7. window.onload 로직 수정: 커스텀 색상 로드 및 적용 추가 ---
         window.onload = function() {
             try {
-                // 💡 [버그 수정] DOM 요소가 먼저 선택되도록 상단으로 이동
-                const sidebarTitle = document.getElementById("sidebarTitle");
-                const infoHeaderTitle = document.getElementById("infoHeaderTitle");
-                const infoPanelTitle = document.getElementById("infoPanelTitle");
-                const analysisKeywordContainer = document.getElementById("analysisKeywordContainer");
-                const recommendationPanel = document.getElementById("recommendationPanel");
-                const analysisPanel = document.getElementById("analysisPanel");
-                const infoToggleBtn = document.getElementById("infoToggleBtn");
-                const darkModeToggle = document.getElementById('darkModeToggle');
-                const chatList = document.getElementById("chatList");
+
+                const savedBgColor = localStorage.getItem('custom_bg_color');
+                const savedTextColor = localStorage.getItem('custom_text_color');
+                // const savedProfileSrc = localStorage.getItem('user_profile_src'); // 💡 [삭제] 저장된 프로필 이미지 경로 로드 제거
+                const root = document.documentElement;
+
+                document.body.classList.remove('dark-mode');
+
+                if (savedBgColor) {
+                    root.style.setProperty('--custom-bg-color', savedBgColor);
+                    if (bgColorInput) {
+                        bgColorInput.value = savedBgColor;
+                        bgColorPicker.value = savedBgColor;
+                    }
+                    if (savedBgColor === '#1a1a2e') {
+                         document.body.classList.add('dark-mode');
+                    }
+                }
+
+                if (savedTextColor) {
+                    root.style.setProperty('--custom-text-color', savedTextColor);
+                    if (textColorInput) {
+                        textColorInput.value = savedTextColor;
+                        textColorPicker.value = savedTextColor;
+                    }
+                }
+
+                if (!savedBgColor && localStorage.getItem('theme') === 'dark') {
+                     // ...
+                }
 
                 userId = localStorage.getItem('user_id');
                 userName = localStorage.getItem('user_name') || '학생';
+                // 💡 [수정] 로드된 프로필 경로 로직 제거. userProfileSrc는 전역 상수로 고정됨.
 
                 if (!userId) {
                     alert("로그인이 필요합니다.");
@@ -1461,49 +1844,44 @@
                     return;
                 }
 
-                updateUserUI(userName);
+                updateUserUI(userName); // 💡 [수정] 프로필 경로 인자 제거
 
                 chats = JSON.parse(localStorage.getItem(`chats_${userId}`) || "[]");
+
+                // 💡 [수정] 앱 로드 시 가장 최신 대화(마지막 인덱스)를 선택
                 currentChatIndex = chats.length ? chats.length - 1 : -1;
 
                 if (currentChatIndex >= 0) {
                     currentConversationId = chats[currentChatIndex].conversationId;
                     conversationHistory = chats[currentChatIndex].history;
                     renderChat(conversationHistory);
-                    
+
                     const loadedRecs = chats[currentChatIndex].recommendations || [];
                     const loadedKeywords = chats[currentChatIndex].keywords || [];
-                    
+
                     updateInfoPanel({ recommendations: loadedRecs });
-                    
+
                     try {
                         updateAnalysisPanel(loadedKeywords, loadedRecs);
                     } catch (e) {
                         console.error("그래프 로딩 중 오류 발생:", e);
                     }
-                    
+
                 } else {
-                    newChat();
+                    newChat(); // 💡 채팅이 하나도 없으면 새 채팅 시작
                 }
 
                 recommendationPanel.classList.add('visible');
                 analysisPanel.classList.add('hidden');
                 infoToggleBtn.classList.remove('analysis-mode-btn');
 
-                if (localStorage.getItem('theme') === 'dark') {
-                    document.body.classList.add('dark-mode');
-                    if (darkModeToggle) darkModeToggle.querySelector('.icon').textContent = '☀️';
-                } else {
-                    if (darkModeToggle) darkModeToggle.querySelector('.icon').textContent = '🌙';
-                }
+                loadChatList(); // 💡 목록 로드
 
-                loadChatList();
-                
             } catch (error) {
                 console.error("초기화 중 치명적 오류:", error);
                 alert("페이지 로딩 중 오류가 발생했습니다. (window.onload) \n\n" + error.message);
             }
-            
+
             addEventListeners();
         }
 
