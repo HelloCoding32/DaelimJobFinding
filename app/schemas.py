@@ -1,6 +1,3 @@
-# /Users/seongjegeun/Downloads/pro03/schemas.py
-# Firebase Firestore 기반 FastAPI 스키마 정의 (ChatGPT 직업 추천 + 세션 관리 버전)
-
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from datetime import datetime

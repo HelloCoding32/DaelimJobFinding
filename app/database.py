@@ -1,6 +1,3 @@
-# /pro03/database.py
-# Firebase Firestore + 환경변수 기반 초기화 (Render / 로컬 완벽 호환)
-
 import firebase_admin
 from firebase_admin import credentials, firestore
 from dotenv import load_dotenv

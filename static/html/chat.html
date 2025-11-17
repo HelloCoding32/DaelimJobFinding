@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>학생진로 상담 챗봇</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.js"></script>
+    <link rel="stylesheet" href="/static/css/chat.css" />
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-main"> <div class="sidebar-header" id="sidebarTitle">💬 상담 기록</div>
+            <div class="new-chat-btn" id="newChatBtn">+ 새 대화</div>
+            <div class="chat-list" id="chatList"></div>
+        </div>
+        <div class="sidebar-footer"> <button class="edit-profile-btn" id="editProfileBtn">👤 회원 수정</button>
+            <button class="logout-btn" id="logoutBtn">🚪 로그아웃</button>
+        </div>
+    </div>
+
+    <div class="main-content-wrapper">
+        <div class="chat-container">
+            <div class="chat-header">
+                학생진로 상담 챗봇
+                <div class="chat-header-buttons">
+                    <button class="settings-btn" id="settingsBtn">⚙️</button>
+                </div>
+            </div>
+            <div class="settings-panel" id="settingsPanel">
+                <label for="bgColorInput"><b>화면 색상 설정</b></label>
+
+                <small>배경색 (예: #FFFFFF 또는 white):</small>
+                <div class="color-group">
+                    <input type="text" id="bgColorInput" placeholder="색상 코드 또는 이름" value="#f5f7fa" />
+                    <input type="color" id="bgColorPicker" value="#f5f7fa" title="색상 팔레트" />
+                </div>
+                <div style="margin-top: 5px;">
+                    <button class="color-preset-btn" data-type="bg" data-color="#FFFFFF" style="background-color: #FFFFFF; color: black; border-color: #ccc;">Light (White)</button>
+                    <button class="color-preset-btn" data-type="bg" data-color="#1a1a2e" style="background-color: #1a1a2e; color: white;">Dark (Deep Blue)</button>
+                </div>
+
+                <small>텍스트색 (예: #333333 또는 black):</small>
+                <div class="color-group">
+                    <input type="text" id="textColorInput" placeholder="색상 코드 또는 이름" value="#333333" />
+                    <input type="color" id="textColorPicker" value="#333333" title="색상 팔레트" />
+                </div>
+                <div style="margin-top: 5px; margin-bottom: 10px;">
+                    <button class="color-preset-btn" data-type="text" data-color="#333333" style="background-color: #ddd; color: #333333; border-color: #aaa;">Black</button>
+                    <button class="color-preset-btn" data-type="text" data-color="#FFFFFF" style="background-color: #111; color: white;">White</button>
+                </div>
+
+                <button class="logout-setting-btn" id="logoutSettingBtn">🚪 로그아웃</button>
+            </div>
+            <div class="chat-body" id="chat-body"></div>
+            <div class="chat-input">
+                <input type="text" placeholder="메시지를 입력하세요..." id="message" />
+                <button id="sendBtn">전송</button> </div>
+        </div>
+        <div class="info-panel">
+            <div class="info-header" id="infoHeaderTitle">🔍 맞춤형 진로 정보</div>
+            <div class="info-sub-header">
+                <div class="info-content-title" id="infoPanelTitle">
+                    <span style="color: #666;">📊</span> AI 추천 직업
+                </div>
+                <button id="infoToggleBtn">📊 분석 정보 보기</button>
+            </div>
+            <div class="info-content-wrapper" id="infoContentWrapper">
+                <div class="info-section info-section-recommendation visible" id="recommendationPanel">
+                    <div class="recommendation-list">
+                        </div>
+                </div>
+
+                <div class="info-section info-section-analysis hidden" id="analysisPanel">
+                    <div class="info-content-title">📊 학생 분석 요약</div>
+                    <div class="keyword-container" id="analysisKeywordContainer">
+                        </div>
+                    <div class="info-content-title graph-title">
+
+📈 직업 일치율 분석
+                    </div>
+                    <div class="graph-container">
+                        <canvas id="jobMatchChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <h2>회원 정보 수정</h2>
+            <div id="updateStatusMessage" style="color: green; margin-bottom: 10px;"></div>
+            <label for="modalUserId">아이디 (ID)</label>
+            <input type="text" id="modalUserId" disabled>
+            <label for="modalNewPassword">새 비밀번호</label>
+            <input type="password" id="modalNewPassword" placeholder="변경하려면 새 비밀번호를 입력하세요">
+            <label for="modalUserName">이름</label>
+            <input type="text" id="modalUserName" required>
+
+            <div class="modal-buttons">
+                <button id="cancelUpdateBtn">취소</button>
+                <button id="updateProfileBtn">수정 완료</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/chat.js"></script>
+</body>
+</html>

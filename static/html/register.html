@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입 | 학생진로 AI</title>
+  <link rel="stylesheet" href="/static/css/register.css">
+</head>
+<body>
+  <div class="login-container">
+    <h1 class="logo">회원가입</h1>
+
+    <div id="message" class="message"></div>
+
+    <form id="registerForm" class="login-form">
+      <input type="text" id="userid" name="userid" placeholder="아이디를 입력하세요" required>
+      <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+      <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+
+      <button type="submit" class="login-btn" id="registerBtn">가입하기</button>
+    </form>
+
+    <div class="links">
+      <a href="/login">로그인 화면으로 돌아가기</a>
+    </div>
+  </div>
+  <script src="/static/js/register.js"></script>
+</body>
+</html>
